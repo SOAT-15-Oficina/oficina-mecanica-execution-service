@@ -14,9 +14,11 @@ type DatabasePinger interface {
 	Ping(context.Context) error
 }
 
-func Register(app *fiber.App, db DatabasePinger) {
+func Register(app *fiber.App, db DatabasePinger, svc ExecutionService, jwtSecret string) {
 	registerHealth(app, db)
-	registerSwagger(app.Group(Prefix))
+	group := app.Group(Prefix)
+	registerSwagger(group)
+	registerTickets(group, svc, jwtSecret)
 }
 
 func registerHealth(app *fiber.App, db DatabasePinger) {

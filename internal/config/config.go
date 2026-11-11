@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -11,6 +12,12 @@ type ServerConfig struct {
 	Environment string
 	Port        string
 	BaseURL     string
+}
+
+var ErrMissingJWTSecret = errors.New("JWT_SECRET_KEY is required")
+
+type AuthConfig struct {
+	JWTSecretKey string
 }
 
 type AWSConfig struct {
@@ -26,10 +33,12 @@ type MessagingConfig struct {
 	InboxQueueURL  string
 	EventsTopicARN string
 	PollWait       time.Duration
+	OutboxInterval time.Duration
 }
 
 type Config struct {
 	Server    *ServerConfig
+	Auth      *AuthConfig
 	AWS       *AWSConfig
 	Store     *StoreConfig
 	Messaging *MessagingConfig
@@ -43,12 +52,20 @@ func Load() (*Config, error) {
 	v.SetDefault("AWS_DEFAULT_REGION", "sa-east-1")
 	v.SetDefault("DYNAMODB_TABLE_NAME", "execution-tickets")
 	v.SetDefault("MESSAGING_POLL_WAIT", "20s")
+	v.SetDefault("OUTBOX_POLL_INTERVAL", "500ms")
+
+	if v.GetString("JWT_SECRET_KEY") == "" {
+		return nil, ErrMissingJWTSecret
+	}
 
 	return &Config{
 		Server: &ServerConfig{
 			Environment: v.GetString("SERVER_ENVIRONMENT"),
 			Port:        v.GetString("SERVER_PORT"),
 			BaseURL:     v.GetString("APP_BASE_URL"),
+		},
+		Auth: &AuthConfig{
+			JWTSecretKey: v.GetString("JWT_SECRET_KEY"),
 		},
 		AWS: &AWSConfig{
 			Endpoint: v.GetString("AWS_ENDPOINT_URL"),
@@ -61,6 +78,7 @@ func Load() (*Config, error) {
 			InboxQueueURL:  v.GetString("MESSAGING_INBOX_QUEUE_URL"),
 			EventsTopicARN: v.GetString("MESSAGING_EVENTS_TOPIC_ARN"),
 			PollWait:       v.GetDuration("MESSAGING_POLL_WAIT"),
+			OutboxInterval: v.GetDuration("OUTBOX_POLL_INTERVAL"),
 		},
 	}, nil
 }

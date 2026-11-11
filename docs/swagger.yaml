@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: Oficina Mecanica - Execution Service
-  version: 0.1.0
+  version: 0.2.0
   description: Fila da bancada, diagnostico e execucao das ordens de servico.
   license:
     name: MIT
@@ -15,6 +15,12 @@ tags:
     description: Sondas de liveness e readiness
   - name: docs
     description: Contrato e Swagger UI
+  - name: queue
+    description: Fila da bancada por filial e fase
+  - name: tickets
+    description: Ficha da OS na bancada, diagnostico e reparo item a item
+  - name: bays
+    description: Disponibilidade da bancada por filial
 paths:
   /ping:
     get:
@@ -67,7 +73,479 @@ paths:
             text/html:
               schema:
                 type: string
+  /execution/queue:
+    get:
+      operationId: getQueue
+      tags: [queue]
+      summary: Fila ordenada por chegada
+      description: Tickets que aguardam na fila da filial e da fase, do mais antigo ao mais novo. Ao iniciar o diagnostico ou o reparo o ticket sai da fila.
+      parameters:
+        - name: branch
+          in: query
+          required: true
+          schema:
+            type: string
+            example: MATRIZ
+        - name: phase
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [DIAGNOSTICO, REPARO]
+      responses:
+        "200":
+          description: Fila
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Queue"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /execution/tickets/{workOrderId}:
+    get:
+      operationId: getTicket
+      tags: [tickets]
+      summary: Ficha, itens e linha do tempo
+      parameters:
+        - $ref: "#/components/parameters/WorkOrderId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Ticket"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /execution/tickets/{workOrderId}/diagnosis/start:
+    post:
+      operationId: startDiagnosis
+      tags: [tickets]
+      summary: Inicia o diagnostico
+      description: DIAGNOSTICO_NA_FILA para EM_DIAGNOSTICO. Publica execution.diagnosis-started.
+      parameters:
+        - $ref: "#/components/parameters/WorkOrderId"
+      requestBody:
+        $ref: "#/components/requestBodies/Technician"
+      responses:
+        "200":
+          $ref: "#/components/responses/Ticket"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /execution/tickets/{workOrderId}/diagnosis/complete:
+    post:
+      operationId: completeDiagnosis
+      tags: [tickets]
+      summary: Conclui o diagnostico
+      description: EM_DIAGNOSTICO para DIAGNOSTICADO. Publica execution.diagnosis-completed.
+      parameters:
+        - $ref: "#/components/parameters/WorkOrderId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+                  maxLength: 2000
+                  example: Pastilhas de freio gastas
+      responses:
+        "200":
+          $ref: "#/components/responses/Ticket"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /execution/tickets/{workOrderId}/repair/start:
+    post:
+      operationId: startRepair
+      tags: [tickets]
+      summary: Inicia o reparo
+      description: REPARO_NA_FILA para EM_REPARO. Publica execution.repair-started; sem itens, conclui na hora e publica execution.repair-completed.
+      parameters:
+        - $ref: "#/components/parameters/WorkOrderId"
+      requestBody:
+        $ref: "#/components/requestBodies/Technician"
+      responses:
+        "200":
+          $ref: "#/components/responses/Ticket"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /execution/tickets/{workOrderId}/items/{workOrderServiceId}/start:
+    post:
+      operationId: startItem
+      tags: [tickets]
+      summary: Inicia a execucao de um item
+      description: Item PENDENTE para EM_EXECUCAO com o ticket EM_REPARO. Publica execution.item-started.
+      parameters:
+        - $ref: "#/components/parameters/WorkOrderId"
+        - $ref: "#/components/parameters/WorkOrderServiceId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Ticket"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /execution/tickets/{workOrderId}/items/{workOrderServiceId}/finish:
+    post:
+      operationId: finishItem
+      tags: [tickets]
+      summary: Finaliza um item
+      description: Item EM_EXECUCAO para FINALIZADO. Publica execution.item-finished; ao finalizar o ultimo item o ticket vai para CONCLUIDO e publica execution.repair-completed na mesma transacao.
+      parameters:
+        - $ref: "#/components/parameters/WorkOrderId"
+        - $ref: "#/components/parameters/WorkOrderServiceId"
+      responses:
+        "200":
+          $ref: "#/components/responses/Ticket"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /execution/bays/{branch}:
+    get:
+      operationId: getBay
+      tags: [bays]
+      summary: Disponibilidade da bancada
+      description: Filial sem registro e considerada disponivel.
+      parameters:
+        - $ref: "#/components/parameters/Branch"
+      responses:
+        "200":
+          $ref: "#/components/responses/Bay"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /execution/bays/{branch}/availability:
+    put:
+      operationId: setBayAvailability
+      tags: [bays]
+      summary: Marca a bancada como disponivel ou indisponivel
+      description: Com a bancada indisponivel o proximo execution.enqueue-repair da filial e recusado com BANCADA_INDISPONIVEL.
+      parameters:
+        - $ref: "#/components/parameters/Branch"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [available]
+              properties:
+                available:
+                  type: boolean
+                  example: false
+      responses:
+        "200":
+          $ref: "#/components/responses/Bay"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
 components:
+  parameters:
+    WorkOrderId:
+      name: workOrderId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    WorkOrderServiceId:
+      name: workOrderServiceId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Branch:
+      name: branch
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "^[A-Za-z0-9_-]{1,40}$"
+        example: MATRIZ
+  requestBodies:
+    Technician:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required: [technician]
+            properties:
+              technician:
+                type: string
+                maxLength: 120
+                example: Joao
+  responses:
+    Ticket:
+      description: Ticket apos a operacao
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Ticket"
+    Bay:
+      description: Disponibilidade da bancada
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Bay"
+    BadRequest:
+      description: Parametro ou corpo invalido
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unauthorized:
+      description: JWT ausente ou invalido
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: Role sem permissao (exige admin ou employee)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Ticket ou item inexistente
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Conflict:
+      description: Transicao invalida para o estado atual do ticket ou do item
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+    TicketStatus:
+      type: string
+      enum: [DIAGNOSTICO_NA_FILA, EM_DIAGNOSTICO, DIAGNOSTICADO, REPARO_NA_FILA, EM_REPARO, CONCLUIDO, CANCELADO]
+    Vehicle:
+      type: object
+      properties:
+        license_plate:
+          type: string
+        brand:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+    Item:
+      type: object
+      required: [work_order_service_id, status]
+      properties:
+        work_order_service_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        estimated_time_minutes:
+          type: integer
+        status:
+          type: string
+          enum: [PENDENTE, EM_EXECUCAO, FINALIZADO]
+        started_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+    Event:
+      type: object
+      required: [at, type]
+      properties:
+        at:
+          type: string
+          format: date-time
+        type:
+          type: string
+          description: Tipo da mensagem que causou ou foi emitida pelo evento
+          example: execution.diagnosis-started
+        from:
+          $ref: "#/components/schemas/TicketStatus"
+        to:
+          $ref: "#/components/schemas/TicketStatus"
+        actor:
+          type: string
+        work_order_service_id:
+          type: string
+          format: uuid
+        message_id:
+          type: string
+          format: uuid
+        detail:
+          type: string
+    Ticket:
+      type: object
+      required: [work_order_id, branch, status, phase, items, timeline]
+      properties:
+        work_order_id:
+          type: string
+          format: uuid
+        work_order_code:
+          type: string
+        title:
+          type: string
+        branch:
+          type: string
+        vehicle:
+          $ref: "#/components/schemas/Vehicle"
+        status:
+          $ref: "#/components/schemas/TicketStatus"
+        phase:
+          type: string
+          enum: [DIAGNOSTICO, REPARO]
+        saga_id:
+          type: string
+          format: uuid
+        diagnosis_technician:
+          type: string
+        diagnosis_notes:
+          type: string
+        repair_technician:
+          type: string
+        cancel_reason:
+          type: string
+        enqueued_at:
+          type: string
+          format: date-time
+        diagnosis_started_at:
+          type: string
+          format: date-time
+        diagnosis_completed_at:
+          type: string
+          format: date-time
+        repair_started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        canceled_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        version:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Item"
+        timeline:
+          type: array
+          items:
+            $ref: "#/components/schemas/Event"
+    Queue:
+      type: object
+      required: [branch, phase, entries]
+      properties:
+        branch:
+          type: string
+        phase:
+          type: string
+          enum: [DIAGNOSTICO, REPARO]
+        entries:
+          type: array
+          items:
+            type: object
+            required: [position, work_order_id, status]
+            properties:
+              position:
+                type: integer
+                example: 1
+              work_order_id:
+                type: string
+                format: uuid
+              work_order_code:
+                type: string
+              title:
+                type: string
+              status:
+                $ref: "#/components/schemas/TicketStatus"
+              vehicle:
+                $ref: "#/components/schemas/Vehicle"
+              enqueued_at:
+                type: string
+                format: date-time
+    Bay:
+      type: object
+      required: [branch, available]
+      properties:
+        branch:
+          type: string
+        available:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+        updated_by:
+          type: string
   securitySchemes:
     bearerAuth:
       type: http

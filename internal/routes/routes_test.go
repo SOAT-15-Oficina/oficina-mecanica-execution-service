@@ -29,7 +29,7 @@ func do(t *testing.T, app *fiber.App, path string) *http.Response {
 
 func TestPing(t *testing.T) {
 	app := fiber.New()
-	Register(app, nil)
+	Register(app, nil, nil, "")
 
 	resp := do(t, app, "/ping")
 	body, _ := io.ReadAll(resp.Body)
@@ -50,7 +50,7 @@ func TestReadinessReflectsDatabase(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			app := fiber.New()
-			Register(app, tt.pinger)
+			Register(app, tt.pinger, nil, "")
 			assert.Equal(t, tt.status, do(t, app, "/ready").StatusCode)
 		})
 	}
@@ -58,7 +58,7 @@ func TestReadinessReflectsDatabase(t *testing.T) {
 
 func TestSwaggerIsServedUnderPrefix(t *testing.T) {
 	app := fiber.New()
-	Register(app, nil)
+	Register(app, nil, nil, "")
 
 	resp := do(t, app, Prefix+"/docs/swagger.yaml")
 	body, _ := io.ReadAll(resp.Body)
@@ -77,7 +77,7 @@ func TestContractMatchesRegisteredRoutes(t *testing.T) {
 	require.NoError(t, yaml.Unmarshal(docs.Swagger, &contract))
 
 	app := fiber.New()
-	Register(app, nil)
+	Register(app, nil, nil, "")
 
 	registered := map[string]bool{}
 	for _, r := range app.GetRoutes(true) {

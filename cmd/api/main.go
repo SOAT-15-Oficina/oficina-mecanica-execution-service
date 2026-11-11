@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/SOAT-15-Oficina/oficina-mecanica-execution-service/internal/config"
+	"github.com/SOAT-15-Oficina/oficina-mecanica-execution-service/internal/execution"
 	"github.com/SOAT-15-Oficina/oficina-mecanica-execution-service/internal/observability"
 	"github.com/SOAT-15-Oficina/oficina-mecanica-execution-service/internal/routes"
 	"github.com/SOAT-15-Oficina/oficina-mecanica-execution-service/internal/store"
@@ -28,8 +29,9 @@ func main() {
 		exit(err, "failed to create dynamodb client", observability.Integration(observability.IntegrationDynamoDB))
 	}
 
+	repo := store.New(client, cfg.Store.TableName)
 	app := fiber.New()
-	routes.Register(app, store.New(client, cfg.Store.TableName))
+	routes.Register(app, repo, execution.New(repo, cfg.Messaging.EventsTopicARN, slog.Default()), cfg.Auth.JWTSecretKey)
 
 	if err := app.Listen(":" + cfg.Server.Port); err != nil {
 		exit(err, "failed to start server")
