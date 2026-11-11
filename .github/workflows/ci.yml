@@ -58,6 +58,22 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    services:
+      localstack:
+        image: localstack/localstack:4.4
+        env:
+          SERVICES: dynamodb,sqs,sns
+        ports: ["4566:4566"]
+        options: >-
+          --health-cmd "curl -sf http://localhost:4566/_localstack/health"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
+    env:
+      AWS_ENDPOINT_URL: http://localhost:4566
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: sa-east-1
     steps:
       - uses: actions/checkout@v4
 
