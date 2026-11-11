@@ -30,3 +30,5 @@ spec:
           envFrom:
             - configMapRef:
                 name: execution-config
+            - secretRef:
+                name: execution-secrets

@@ -52,6 +52,7 @@ jobs:
         run: |
           curl -sSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xz kubeconform
           for overlay in k8s/overlays/*/; do
+            touch "${overlay}secrets.env"
             kubectl kustomize "$overlay" | ./kubeconform -strict -summary -ignore-missing-schemas -
           done
 
@@ -227,6 +228,9 @@ jobs:
             echo "IRSA_ROLE_ARN=$(get execution_role_arn)"
             echo "TARGET_GROUP_ARN=$(get execution_target_group_arn)"
           } > "${OVERLAY}/deploy-params.env"
+          JWT_SECRET_KEY="$(aws secretsmanager get-secret-value --secret-id "$(get jwt_secret_arn)" --query SecretString --output text)"
+          echo "::add-mask::$JWT_SECRET_KEY"
+          echo "JWT_SECRET_KEY=$JWT_SECRET_KEY" > "${OVERLAY}/secrets.env"
 
       - uses: aws-actions/amazon-ecr-login@v2
 

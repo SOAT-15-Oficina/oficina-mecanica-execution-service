@@ -26,3 +26,4 @@ go.work
 *.tfstate.*
 .env.*
 !.env.example
+k8s/overlays/*/secrets.env

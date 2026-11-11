@@ -16,6 +16,11 @@ configMapGenerator:
     options:
       disableNameSuffixHash: true
 
+secretGenerator:
+  - name: execution-secrets
+    envs:
+      - secrets.env
+
 replacements:
   - source:
       kind: ConfigMap
