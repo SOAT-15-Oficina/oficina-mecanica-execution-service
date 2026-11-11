@@ -99,12 +99,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Queue"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
   /execution/tickets/{workOrderId}:
     get:
       operationId: getTicket
@@ -113,16 +110,11 @@ paths:
       parameters:
         - $ref: "#/components/parameters/WorkOrderId"
       responses:
-        "200":
-          $ref: "#/components/responses/Ticket"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
+        "200": { $ref: "#/components/responses/Ticket" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
   /execution/tickets/{workOrderId}/diagnosis/start:
     post:
       operationId: startDiagnosis
@@ -134,18 +126,12 @@ paths:
       requestBody:
         $ref: "#/components/requestBodies/Technician"
       responses:
-        "200":
-          $ref: "#/components/responses/Ticket"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "409":
-          $ref: "#/components/responses/Conflict"
+        "200": { $ref: "#/components/responses/Ticket" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
   /execution/tickets/{workOrderId}/diagnosis/complete:
     post:
       operationId: completeDiagnosis
@@ -166,18 +152,12 @@ paths:
                   maxLength: 2000
                   example: Pastilhas de freio gastas
       responses:
-        "200":
-          $ref: "#/components/responses/Ticket"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "409":
-          $ref: "#/components/responses/Conflict"
+        "200": { $ref: "#/components/responses/Ticket" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
   /execution/tickets/{workOrderId}/repair/start:
     post:
       operationId: startRepair
@@ -189,18 +169,12 @@ paths:
       requestBody:
         $ref: "#/components/requestBodies/Technician"
       responses:
-        "200":
-          $ref: "#/components/responses/Ticket"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "409":
-          $ref: "#/components/responses/Conflict"
+        "200": { $ref: "#/components/responses/Ticket" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
   /execution/tickets/{workOrderId}/items/{workOrderServiceId}/start:
     post:
       operationId: startItem
@@ -211,18 +185,12 @@ paths:
         - $ref: "#/components/parameters/WorkOrderId"
         - $ref: "#/components/parameters/WorkOrderServiceId"
       responses:
-        "200":
-          $ref: "#/components/responses/Ticket"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "409":
-          $ref: "#/components/responses/Conflict"
+        "200": { $ref: "#/components/responses/Ticket" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
   /execution/tickets/{workOrderId}/items/{workOrderServiceId}/finish:
     post:
       operationId: finishItem
@@ -233,18 +201,12 @@ paths:
         - $ref: "#/components/parameters/WorkOrderId"
         - $ref: "#/components/parameters/WorkOrderServiceId"
       responses:
-        "200":
-          $ref: "#/components/responses/Ticket"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
-        "404":
-          $ref: "#/components/responses/NotFound"
-        "409":
-          $ref: "#/components/responses/Conflict"
+        "200": { $ref: "#/components/responses/Ticket" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
   /execution/bays/{branch}:
     get:
       operationId: getBay
@@ -254,14 +216,10 @@ paths:
       parameters:
         - $ref: "#/components/parameters/Branch"
       responses:
-        "200":
-          $ref: "#/components/responses/Bay"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        "200": { $ref: "#/components/responses/Bay" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
   /execution/bays/{branch}/availability:
     put:
       operationId: setBayAvailability
@@ -282,30 +240,22 @@ paths:
                   type: boolean
                   example: false
       responses:
-        "200":
-          $ref: "#/components/responses/Bay"
-        "400":
-          $ref: "#/components/responses/BadRequest"
-        "401":
-          $ref: "#/components/responses/Unauthorized"
-        "403":
-          $ref: "#/components/responses/Forbidden"
+        "200": { $ref: "#/components/responses/Bay" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
 components:
   parameters:
     WorkOrderId:
       name: workOrderId
       in: path
       required: true
-      schema:
-        type: string
-        format: uuid
+      schema: { type: string, format: uuid }
     WorkOrderServiceId:
       name: workOrderServiceId
       in: path
       required: true
-      schema:
-        type: string
-        format: uuid
+      schema: { type: string, format: uuid }
     Branch:
       name: branch
       in: path
@@ -395,9 +345,7 @@ components:
       type: object
       required: [work_order_service_id, status]
       properties:
-        work_order_service_id:
-          type: string
-          format: uuid
+        work_order_service_id: { type: string, format: uuid }
         title:
           type: string
         estimated_time_minutes:
@@ -405,19 +353,13 @@ components:
         status:
           type: string
           enum: [PENDENTE, EM_EXECUCAO, FINALIZADO]
-        started_at:
-          type: string
-          format: date-time
-        finished_at:
-          type: string
-          format: date-time
+        started_at: { type: string, format: date-time }
+        finished_at: { type: string, format: date-time }
     Event:
       type: object
       required: [at, type]
       properties:
-        at:
-          type: string
-          format: date-time
+        at: { type: string, format: date-time }
         type:
           type: string
           description: Tipo da mensagem que causou ou foi emitida pelo evento
@@ -428,21 +370,15 @@ components:
           $ref: "#/components/schemas/TicketStatus"
         actor:
           type: string
-        work_order_service_id:
-          type: string
-          format: uuid
-        message_id:
-          type: string
-          format: uuid
+        work_order_service_id: { type: string, format: uuid }
+        message_id: { type: string, format: uuid }
         detail:
           type: string
     Ticket:
       type: object
       required: [work_order_id, branch, status, phase, items, timeline]
       properties:
-        work_order_id:
-          type: string
-          format: uuid
+        work_order_id: { type: string, format: uuid }
         work_order_code:
           type: string
         title:
@@ -456,9 +392,7 @@ components:
         phase:
           type: string
           enum: [DIAGNOSTICO, REPARO]
-        saga_id:
-          type: string
-          format: uuid
+        saga_id: { type: string, format: uuid }
         diagnosis_technician:
           type: string
         diagnosis_notes:
@@ -467,30 +401,14 @@ components:
           type: string
         cancel_reason:
           type: string
-        enqueued_at:
-          type: string
-          format: date-time
-        diagnosis_started_at:
-          type: string
-          format: date-time
-        diagnosis_completed_at:
-          type: string
-          format: date-time
-        repair_started_at:
-          type: string
-          format: date-time
-        completed_at:
-          type: string
-          format: date-time
-        canceled_at:
-          type: string
-          format: date-time
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
+        enqueued_at: { type: string, format: date-time }
+        diagnosis_started_at: { type: string, format: date-time }
+        diagnosis_completed_at: { type: string, format: date-time }
+        repair_started_at: { type: string, format: date-time }
+        completed_at: { type: string, format: date-time }
+        canceled_at: { type: string, format: date-time }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
         version:
           type: integer
         items:
@@ -519,9 +437,7 @@ components:
               position:
                 type: integer
                 example: 1
-              work_order_id:
-                type: string
-                format: uuid
+              work_order_id: { type: string, format: uuid }
               work_order_code:
                 type: string
               title:
@@ -530,9 +446,7 @@ components:
                 $ref: "#/components/schemas/TicketStatus"
               vehicle:
                 $ref: "#/components/schemas/Vehicle"
-              enqueued_at:
-                type: string
-                format: date-time
+              enqueued_at: { type: string, format: date-time }
     Bay:
       type: object
       required: [branch, available]
@@ -541,9 +455,7 @@ components:
           type: string
         available:
           type: boolean
-        updated_at:
-          type: string
-          format: date-time
+        updated_at: { type: string, format: date-time }
         updated_by:
           type: string
   securitySchemes:
