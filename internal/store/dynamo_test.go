@@ -13,26 +13,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type stubDescriber struct {
-	out *dynamodb.DescribeTableOutput
-	err error
-	got string
-}
-
-func (s *stubDescriber) DescribeTable(_ context.Context, in *dynamodb.DescribeTableInput, _ ...func(*dynamodb.Options)) (*dynamodb.DescribeTableOutput, error) {
-	s.got = aws.ToString(in.TableName)
-	return s.out, s.err
-}
-
 func TestPing(t *testing.T) {
 	tests := []struct {
 		name    string
-		stub    *stubDescriber
+		stub    *stubAPI
 		wantErr error
 	}{
-		{"active", &stubDescriber{out: &dynamodb.DescribeTableOutput{Table: &types.TableDescription{TableStatus: types.TableStatusActive}}}, nil},
-		{"creating", &stubDescriber{out: &dynamodb.DescribeTableOutput{Table: &types.TableDescription{TableStatus: types.TableStatusCreating}}}, ErrTableNotActive},
-		{"no description", &stubDescriber{out: &dynamodb.DescribeTableOutput{}}, ErrTableNotActive},
+		{"active", &stubAPI{describeOut: &dynamodb.DescribeTableOutput{Table: &types.TableDescription{TableStatus: types.TableStatusActive}}}, nil},
+		{"creating", &stubAPI{describeOut: &dynamodb.DescribeTableOutput{Table: &types.TableDescription{TableStatus: types.TableStatusCreating}}}, ErrTableNotActive},
+		{"no description", &stubAPI{describeOut: &dynamodb.DescribeTableOutput{}}, ErrTableNotActive},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -43,7 +32,7 @@ func TestPing(t *testing.T) {
 			} else {
 				assert.ErrorIs(t, err, tt.wantErr)
 			}
-			assert.Equal(t, "tickets", tt.stub.got)
+			assert.Equal(t, "tickets", tt.stub.describedAs)
 			assert.Equal(t, "tickets", s.Table())
 		})
 	}
@@ -51,11 +40,12 @@ func TestPing(t *testing.T) {
 
 func TestPingWrapsClientError(t *testing.T) {
 	boom := errors.New("boom")
-	err := New(&stubDescriber{err: boom}, "tickets").Ping(context.Background())
+	err := New(&stubAPI{err: boom}, "tickets").Ping(context.Background())
 	assert.ErrorIs(t, err, boom)
 }
 
 func TestNewClientHonoursEndpoint(t *testing.T) {
+	t.Setenv("AWS_ENDPOINT_URL", "")
 	t.Setenv("AWS_ACCESS_KEY_ID", "test")
 	t.Setenv("AWS_SECRET_ACCESS_KEY", "test")
 
