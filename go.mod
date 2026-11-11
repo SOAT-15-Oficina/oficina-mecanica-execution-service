@@ -11,6 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sns v1.48.0
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.53.0
 	github.com/gofiber/fiber/v3 v3.7.0
+	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/google/uuid v1.6.0
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.12.1
