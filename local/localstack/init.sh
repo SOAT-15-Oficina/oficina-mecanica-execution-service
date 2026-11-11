@@ -20,3 +20,6 @@ awslocal dynamodb create-table --table-name execution-tickets \
     AttributeName=GSI1PK,AttributeType=S AttributeName=GSI1SK,AttributeType=S \
   --key-schema AttributeName=PK,KeyType=HASH AttributeName=SK,KeyType=RANGE \
   --global-secondary-indexes 'IndexName=queue,KeySchema=[{AttributeName=GSI1PK,KeyType=HASH},{AttributeName=GSI1SK,KeyType=RANGE}],Projection={ProjectionType=ALL}'
+
+awslocal dynamodb update-time-to-live --table-name execution-tickets \
+  --time-to-live-specification Enabled=true,AttributeName=expires_at
