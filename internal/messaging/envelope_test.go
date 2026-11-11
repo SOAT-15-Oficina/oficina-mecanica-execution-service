@@ -13,7 +13,7 @@ import (
 func validEnvelope() Envelope {
 	return Envelope{
 		MessageID:     uuid.New(),
-		Type:          TypeScheduleDiagnosis,
+		Type:          TypeCreateQuote,
 		Version:       1,
 		SagaID:        uuid.New(),
 		WorkOrderID:   uuid.New(),
@@ -26,25 +26,25 @@ func validEnvelope() Envelope {
 func TestNewInheritsSagaContextFromCause(t *testing.T) {
 	cause := validEnvelope()
 
-	env, err := New(TypeDiagnosisScheduled, cause, map[string]int{"position": 3})
+	env, err := New(TypeQuoteSent, cause, map[string]int{"total_cents": 4500})
 	require.NoError(t, err)
 
 	assert.NotEqual(t, uuid.Nil, env.MessageID)
 	assert.NotEqual(t, cause.MessageID, env.MessageID)
-	assert.Equal(t, TypeDiagnosisScheduled, env.Type)
+	assert.Equal(t, TypeQuoteSent, env.Type)
 	assert.Equal(t, 1, env.Version)
 	assert.Equal(t, cause.SagaID, env.SagaID)
 	assert.Equal(t, cause.WorkOrderID, env.WorkOrderID)
 	assert.Equal(t, cause.CorrelationID, env.CorrelationID)
 	require.NotNil(t, env.CausationID)
 	assert.Equal(t, cause.MessageID, *env.CausationID)
-	assert.JSONEq(t, `{"position":3}`, string(env.Payload))
+	assert.JSONEq(t, `{"total_cents":4500}`, string(env.Payload))
 	assert.Equal(t, cause.WorkOrderID.String(), env.GroupID())
 	require.NoError(t, env.Validate())
 }
 
 func TestNewRejectsUnmarshalablePayload(t *testing.T) {
-	_, err := New(TypeDiagnosisScheduled, validEnvelope(), make(chan int))
+	_, err := New(TypeQuoteSent, validEnvelope(), make(chan int))
 	assert.Error(t, err)
 }
 

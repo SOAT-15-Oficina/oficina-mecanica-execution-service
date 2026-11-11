@@ -9,21 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const (
-	TypeScheduleDiagnosis  = "execution.schedule-diagnosis"
-	TypeDiagnosisScheduled = "execution.diagnosis-scheduled"
-	TypeDiagnosisStarted   = "execution.diagnosis-started"
-	TypeDiagnosisCompleted = "execution.diagnosis-completed"
-	TypeEnqueueRepair      = "execution.enqueue-repair"
-	TypeRepairEnqueued     = "execution.repair-enqueued"
-	TypeRepairRejected     = "execution.repair-rejected"
-	TypeRepairStarted      = "execution.repair-started"
-	TypeItemFinished       = "execution.item-finished"
-	TypeRepairCompleted    = "execution.repair-completed"
-	TypeCancelTicket       = "execution.cancel-ticket"
-	TypeTicketCanceled     = "execution.ticket-canceled"
-)
-
 var ErrInvalidEnvelope = errors.New("invalid envelope")
 
 type Envelope struct {
@@ -49,18 +34,21 @@ func New(messageType string, cause Envelope, payload any) (Envelope, error) {
 		return Envelope{}, fmt.Errorf("generate message id: %w", err)
 	}
 
-	causation := cause.MessageID
-	return Envelope{
+	env := Envelope{
 		MessageID:     id,
 		Type:          messageType,
 		Version:       1,
 		SagaID:        cause.SagaID,
 		WorkOrderID:   cause.WorkOrderID,
 		CorrelationID: cause.CorrelationID,
-		CausationID:   &causation,
 		OccurredAt:    time.Now().UTC(),
 		Payload:       body,
-	}, nil
+	}
+	if cause.MessageID != uuid.Nil {
+		causation := cause.MessageID
+		env.CausationID = &causation
+	}
+	return env, nil
 }
 
 func Decode(raw []byte) (Envelope, error) {
