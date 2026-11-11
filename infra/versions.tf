@@ -1,0 +1,17 @@
+terraform {
+  required_version = ">= 1.6.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.60"
+    }
+  }
+
+  backend "s3" {
+    bucket         = "oficina-mecanica-tfstate-881757053222"
+    region         = "sa-east-1"
+    dynamodb_table = "oficina-mecanica-tflock"
+    encrypt        = true
+  }
+}

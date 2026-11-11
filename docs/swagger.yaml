@@ -1,0 +1,75 @@
+openapi: 3.0.3
+info:
+  title: Oficina Mecanica - Execution Service
+  version: 0.1.0
+  description: Fila da bancada, diagnostico e execucao das ordens de servico.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: /api
+security:
+  - bearerAuth: []
+tags:
+  - name: health
+    description: Sondas de liveness e readiness
+  - name: docs
+    description: Contrato e Swagger UI
+paths:
+  /ping:
+    get:
+      operationId: ping
+      security: []
+      tags: [health]
+      summary: Liveness
+      responses:
+        "200":
+          description: Processo vivo
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Pong
+  /ready:
+    get:
+      operationId: ready
+      security: []
+      tags: [health]
+      summary: Readiness
+      responses:
+        "200":
+          description: Tabela DynamoDB ativa
+        "503":
+          description: Tabela DynamoDB indisponivel
+  /execution/docs/swagger.yaml:
+    get:
+      operationId: getOpenAPI
+      security: []
+      tags: [docs]
+      summary: Contrato OpenAPI deste servico
+      responses:
+        "200":
+          description: Contrato em YAML
+          content:
+            text/yaml:
+              schema:
+                type: string
+  /execution/swagger:
+    get:
+      operationId: getSwaggerUI
+      security: []
+      tags: [docs]
+      summary: Swagger UI
+      responses:
+        "200":
+          description: Pagina HTML
+          content:
+            text/html:
+              schema:
+                type: string
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
