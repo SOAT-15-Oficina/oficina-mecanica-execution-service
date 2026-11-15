@@ -218,6 +218,12 @@ ficam fora da métrica.
 | `internal/ticket` | 100% | 100% |
 | **total (métrica do gate)** | **95,9%** | **96,2%** |
 
+**Evidência no CI:** [execução do PR #2 para
+`hml`](https://github.com/SOAT-15-Oficina/oficina-mecanica-execution-service/actions/runs/43680119065).
+A aba *Summary* mostra o resumo do SonarQube publicado pelo job `quality`:
+Quality Gate, cobertura, bugs, vulnerabilidades e duplicação. O job `test` da
+mesma execução imprime a cobertura do `scripts/coverage-gate.sh`.
+
 ## Pipeline
 
 | Evento | Jobs |
