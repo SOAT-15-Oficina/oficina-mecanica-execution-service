@@ -86,9 +86,9 @@ func fail(c fiber.Ctx, err error) error {
 	case errors.Is(err, ticket.ErrItemNotFound):
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "item not found"})
 	case errors.Is(err, ticket.ErrInvalidTransition):
-		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "invalid transition for the current ticket status"})
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "transição inválida para o status atual da ficha"})
 	case errors.Is(err, ticket.ErrConflict):
-		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "ticket changed concurrently, try again"})
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "a ficha foi alterada por outra operação, tente novamente"})
 	}
 	slog.ErrorContext(c.Context(), "execution: request failed", slog.String("error", err.Error()), slog.String("route", c.Path()))
 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "internal error"})
